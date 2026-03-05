@@ -1,28 +1,971 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='24' font-size='24' fill='%232563eb'%3E📘%3C/text%3E%3C/svg%3E" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitácora de tutorías · ITSE 2026</title>
+  <meta name="description" content="Registro de sesiones de tutoría académica con gráficas de seguimiento por estudiante." />
+  <meta name="keywords" content="tutorías, bitácora, sesiones, seguimiento, gráficas, ITSE" />
+  <meta name="author" content="ITSE 2026" />
+  <meta property="og:title" content="Bitácora de tutorías con gráficas — ITSE 2026" />
+  <meta property="og:description" content="Registra sesiones y visualiza el progreso de cada estudiante con gráficas dinámicas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <!-- SEO -->
-    <title>Plataforma de Gestión Estudiantil — ITSE 2026</title>
-    <meta name="description" content="Plataforma web con 18 herramientas de utilidad para estudiantes: gestión de tareas, calculadora de promedios, bitácora de tutorías, control de asistencias y más." />
-    <meta name="keywords" content="gestión estudiantil, tareas, promedios, tutoría, React, Supabase, ITSE" />
-    <meta name="author" content="ITSE 2026" />
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f3f6fc;
+      color: #1e293b;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Plataforma de Gestión Estudiantil — ITSE 2026" />
-    <meta property="og:description" content="18 herramientas esenciales para estudiantes construidas con React, Vite y Supabase." />
-    <meta property="og:type" content="website" />
+    #root {
+      width: 100%;
+      max-width: 1400px;
+    }
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    .bitacora-container {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      box-shadow: 0 20px 40px -12px rgba(0,35,80,0.25);
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      border-bottom: 2px dashed #cbd5e1;
+      padding-bottom: 1.5rem;
+    }
+
+    .header-icon {
+      font-size: 2.8rem;
+      background: #2563eb;
+      color: white;
+      width: 70px;
+      height: 70px;
+      border-radius: 30px 30px 30px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 0 #1e40af;
+    }
+
+    .header-text h1 {
+      font-weight: 800;
+      font-size: 2.3rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #0f2b63, #1e4ab0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+
+    .header-text p {
+      color: #475569;
+      font-weight: 500;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      background: #dbeafe;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1e4ab0;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 800px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem 1.8rem;
+      box-shadow: 0 8px 24px rgba(0, 34, 68, 0.08);
+      border: 1px solid #e9eef3;
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+      color: #0b2b50;
+    }
+
+    .form-title i {
+      color: #2563eb;
+      font-size: 1.8rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #4b5a6e;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      border: 2px solid #e1e8f0;
+      border-radius: 1.2rem;
+      background: #fafcff;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
+      background: white;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 1.8rem;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      box-shadow: 0 6px 0 #1e40af;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #1e40af;
+    }
+
+    .btn-primary:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #1e40af;
+    }
+
+    .entries-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .entries-header h2 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #172c4e;
+    }
+
+    .counter {
+      background: #dfe9fe;
+      padding: 0.3rem 1.3rem;
+      border-radius: 40px;
+      font-weight: 700;
+      color: #1e4ab0;
+    }
+
+    .entries-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .entry-card {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem 1.8rem;
+      border-left: 10px solid #2563eb;
+      box-shadow: 0 6px 14px rgba(0,20,50,0.06);
+      transition: 0.2s;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid #e2edff;
+    }
+
+    .entry-card:hover {
+      border-left-width: 14px;
+      box-shadow: 0 10px 20px rgba(0,40,100,0.12);
+    }
+
+    .entry-info {
+      flex: 2 1 300px;
+    }
+
+    .entry-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+      color: #4f6f8f;
+    }
+
+    .entry-meta i {
+      width: 1.4rem;
+      color: #2563eb;
+    }
+
+    .entry-tema {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0.2rem 0 0.6rem;
+      color: #0b2b50;
+      word-break: break-word;
+    }
+
+    .entry-acuerdos {
+      background: #f4f9fe;
+      padding: 0.8rem 1.2rem;
+      border-radius: 1.2rem;
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.98rem;
+      border-left: 3px solid #2563eb;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+
+    .btn-icon {
+      background: none;
+      border: 1px solid #dce5f0;
+      width: 44px;
+      height: 44px;
+      border-radius: 18px;
+      font-size: 1.2rem;
+      color: #5e7188;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .btn-icon:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+
+    .btn-icon.edit:hover {
+      background: #e6f0ff;
+      border-color: #2563eb;
+      color: #1e4ab0;
+    }
+
+    .empty-state {
+      background: #f0f5fe;
+      border-radius: 2rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: #5c718c;
+      font-size: 1.2rem;
+      border: 2px dashed #b9d3f8;
+    }
+
+    .footer-note {
+      margin-top: 3rem;
+      text-align: center;
+      color: #6f7d95;
+      font-size: 0.95rem;
+      border-top: 1px solid #d5e2f0;
+      padding-top: 2rem;
+    }
+
+    .footer-note i {
+      color: #2563eb;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #0b2b50;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-save {
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .chart-container {
+      margin-top: 2rem;
+      background: white;
+      border-radius: 2rem;
+      padding: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0, 34, 68, 0.08);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .chart-header h3 {
+      font-size: 1.3rem;
+      color: #0b2b50;
+    }
+
+    .student-select {
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      border: 2px solid #e1e8f0;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="bitacora-container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-book-open" style="font-size: 2.2rem;"></i>
+        </div>
+        <div class="header-text">
+          <h1>Bitácora de Tutorías <span style="font-weight: 500; color:#597cad; font-size: 1.8rem;">· ITSE 2026</span></h1>
+          <p>
+            <i class="fas fa-pen-fade" style="color:#2563eb;"></i> Registro de sesiones, acuerdos y seguimiento
+            <span class="badge"><i class="far fa-clock"></i> 18 herramientas · Tutorías</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div class="form-card">
+          <div class="form-title">
+            <i class="fas fa-plus-circle"></i> 
+            <span>Nueva sesión</span>
+          </div>
+
+          <form id="tutoria-form">
+            <div class="input-group">
+              <label><i class="far fa-calendar-alt" style="margin-right: 6px;"></i> Fecha</label>
+              <input type="date" id="fecha" required value="2026-03-04" />
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-user-graduate"></i> Estudiante</label>
+              <input type="text" id="estudiante" placeholder="Ej. Ana López" required />
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-tag"></i> Tema / Materia</label>
+              <input type="text" id="tema" placeholder="Ej. Cálculo integral, redacción..." required />
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-sticky-note"></i> Acuerdos / seguimiento</label>
+              <textarea id="acuerdos" placeholder="Detalla los compromisos, ejercicios, próximos pasos..." required></textarea>
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-flag-checkered"></i> Estado</label>
+              <select id="estado">
+                <option value="Pendiente">🟡 Pendiente</option>
+                <option value="En proceso" selected>🔵 En proceso</option>
+                <option value="Completada">✅ Completada</option>
+                <option value="Reprogramada">🔄 Reprogramada</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Registrar sesión
+            </button>
+          </form>
+        </div>
+
+        <div>
+          <div class="entries-header">
+            <h2><i class="fas fa-history" style="margin-right: 10px;"></i>Sesiones registradas</h2>
+            <span class="counter" id="sesion-count">0</span>
+          </div>
+
+          <div class="entries-grid" id="entries-grid"></div>
+          <div id="empty-message" class="empty-state" style="display: none;">
+            <i class="fas fa-book-open" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem;"></i>
+            <p>Aún no hay sesiones tutoría. ¡Completa el formulario para comenzar!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nueva sección de gráfica -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-line" style="margin-right: 10px; color:#2563eb;"></i>Seguimiento por estudiante</h3>
+          <select id="student-chart-select" class="student-select">
+            <option value="">Seleccionar estudiante</option>
+          </select>
+        </div>
+        <canvas id="progress-chart" style="width:100%; max-height: 300px;"></canvas>
+        <p id="no-data-message" style="text-align: center; color: #6b7280; margin-top: 1rem; display: none;">
+          <i class="fas fa-info-circle"></i> Selecciona un estudiante para ver su progreso
+        </p>
+      </div>
+
+      <div class="footer-note">
+        <i class="fas fa-robot"></i> Plataforma de Gestión Estudiantil — 18 herramientas · ITSE 2026 
+        <span style="margin:0 0.7rem;">|</span> <i class="fas fa-chalkboard-teacher"></i> Bitácora de tutorías v2.0 con gráficas
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para editar -->
+  <div id="edit-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fas fa-edit" style="margin-right: 10px;"></i>Editar sesión</h3>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        <div class="input-group">
+          <label>Fecha</label>
+          <input type="date" id="edit-fecha" required>
+        </div>
+        <div class="input-group">
+          <label>Estudiante</label>
+          <input type="text" id="edit-estudiante" required>
+        </div>
+        <div class="input-group">
+          <label>Tema</label>
+          <input type="text" id="edit-tema" required>
+        </div>
+        <div class="input-group">
+          <label>Acuerdos</label>
+          <textarea id="edit-acuerdos" required></textarea>
+        </div>
+        <div class="input-group">
+          <label>Estado</label>
+          <select id="edit-estado">
+            <option value="Pendiente">🟡 Pendiente</option>
+            <option value="En proceso">🔵 En proceso</option>
+            <option value="Completada">✅ Completada</option>
+            <option value="Reprogramada">🔄 Reprogramada</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancel-edit">Cancelar</button>
+          <button type="submit" class="btn-save">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      let sesiones = [];
+      let chart = null;
+
+      function generarId() {
+        return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+      }
+
+      function cargarSesiones() {
+        const almacenadas = localStorage.getItem('bitacoraITSE');
+        if (almacenadas) {
+          try {
+            sesiones = JSON.parse(almacenadas);
+          } catch (e) {
+            sesiones = [];
+          }
+        } else {
+          sesiones = [
+            {
+              id: generarId(),
+              fecha: '2026-03-02',
+              estudiante: 'Martín Reyes',
+              tema: 'Ecuaciones diferenciales',
+              acuerdos: 'Resolver 5 ejercicios del capítulo 3. Revisar el martes.',
+              estado: 'En proceso',
+            },
+            {
+              id: generarId(),
+              fecha: '2026-03-01',
+              estudiante: 'Carla Jiménez',
+              tema: 'Estructura de datos - listas enlazadas',
+              acuerdos: 'Implementar lista doblemente enlazada en Python. Próxima tutoría presentar avance.',
+              estado: 'Pendiente',
+            },
+            {
+              id: generarId(),
+              fecha: '2026-02-27',
+              estudiante: 'Sofía Herrera',
+              tema: 'Técnicas de redacción académica',
+              acuerdos: 'Entregar resumen del artículo. Corrección de citas APA.',
+              estado: 'Completada',
+            },
+            {
+              id: generarId(),
+              fecha: '2026-03-03',
+              estudiante: 'Martín Reyes',
+              tema: 'Ecuaciones diferenciales (segunda sesión)',
+              acuerdos: 'Revisión de ejercicios, avance significativo.',
+              estado: 'Completada',
+            },
+            {
+              id: generarId(),
+              fecha: '2026-03-04',
+              estudiante: 'Martín Reyes',
+              tema: 'Preparación para examen',
+              acuerdos: 'Repaso general, dudas resueltas.',
+              estado: 'En proceso',
+            }
+          ];
+          localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+        }
+      }
+
+      const form = document.getElementById('tutoria-form');
+      const grid = document.getElementById('entries-grid');
+      const emptyMsg = document.getElementById('empty-message');
+      const countSpan = document.getElementById('sesion-count');
+      const fechaInput = document.getElementById('fecha');
+      const studentSelect = document.getElementById('student-chart-select');
+      const noDataMessage = document.getElementById('no-data-message');
+      
+      // Elementos del modal
+      const modal = document.getElementById('edit-modal');
+      const editForm = document.getElementById('edit-form');
+      const editId = document.getElementById('edit-id');
+      const editFecha = document.getElementById('edit-fecha');
+      const editEstudiante = document.getElementById('edit-estudiante');
+      const editTema = document.getElementById('edit-tema');
+      const editAcuerdos = document.getElementById('edit-acuerdos');
+      const editEstado = document.getElementById('edit-estado');
+      const cancelEdit = document.getElementById('cancel-edit');
+
+      function abrirModal(sesion) {
+        editId.value = sesion.id;
+        editFecha.value = sesion.fecha;
+        editEstudiante.value = sesion.estudiante;
+        editTema.value = sesion.tema;
+        editAcuerdos.value = sesion.acuerdos;
+        editEstado.value = sesion.estado;
+        modal.style.display = 'flex';
+      }
+
+      function cerrarModal() {
+        modal.style.display = 'none';
+      }
+
+      if (cancelEdit) {
+        cancelEdit.addEventListener('click', cerrarModal);
+      }
+
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const id = editId.value;
+          const index = sesiones.findIndex(s => s.id === id);
+          
+          if (index !== -1) {
+            sesiones[index] = {
+              id: id,
+              fecha: editFecha.value,
+              estudiante: editEstudiante.value.trim(),
+              tema: editTema.value.trim(),
+              acuerdos: editAcuerdos.value.trim(),
+              estado: editEstado.value
+            };
+            
+            localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+            cerrarModal();
+            actualizarInterfaz();
+            actualizarSelectorEstudiantes();
+          }
+        });
+      }
+
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            cerrarModal();
+          }
+        });
+      }
+
+      if (fechaInput) {
+        fechaInput.value = '2026-03-04';
+      }
+
+      function actualizarSelectorEstudiantes() {
+        if (!studentSelect) return;
+        
+        const estudiantes = [...new Set(sesiones.map(s => s.estudiante))].sort();
+        const valorActual = studentSelect.value;
+        
+        studentSelect.innerHTML = '<option value="">Seleccionar estudiante</option>';
+        estudiantes.forEach(est => {
+          const option = document.createElement('option');
+          option.value = est;
+          option.textContent = est;
+          studentSelect.appendChild(option);
+        });
+        
+        if (estudiantes.includes(valorActual)) {
+          studentSelect.value = valorActual;
+          actualizarGrafica(valorActual);
+        } else if (estudiantes.length > 0) {
+          studentSelect.value = estudiantes[0];
+          actualizarGrafica(estudiantes[0]);
+        } else {
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+          if (noDataMessage) noDataMessage.style.display = 'block';
+        }
+      }
+
+      function actualizarGrafica(estudiante) {
+        if (!estudiante) {
+          if (noDataMessage) noDataMessage.style.display = 'block';
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+          return;
+        }
+
+        const sesionesEstudiante = sesiones
+          .filter(s => s.estudiante === estudiante)
+          .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+        if (sesionesEstudiante.length === 0) {
+          if (noDataMessage) noDataMessage.style.display = 'block';
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+          return;
+        }
+
+        if (noDataMessage) noDataMessage.style.display = 'none';
+
+        const estados = ['Pendiente', 'En proceso', 'Completada', 'Reprogramada'];
+        const datosPorFecha = {};
+
+        sesionesEstudiante.forEach(s => {
+          if (!datosPorFecha[s.fecha]) {
+            datosPorFecha[s.fecha] = {
+              fecha: s.fecha,
+              Pendiente: 0,
+              'En proceso': 0,
+              Completada: 0,
+              Reprogramada: 0
+            };
+          }
+          datosPorFecha[s.fecha][s.estado]++;
+        });
+
+        const fechas = Object.keys(datosPorFecha).sort();
+        const datasets = estados.map(estado => {
+          const color = {
+            'Pendiente': '#ca8a04',
+            'En proceso': '#2563eb',
+            'Completada': '#16a34a',
+            'Reprogramada': '#9333ea'
+          }[estado];
+
+          return {
+            label: estado,
+            data: fechas.map(f => datosPorFecha[f][estado] || 0),
+            borderColor: color,
+            backgroundColor: color + '20',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+          };
+        });
+
+        const ctx = document.getElementById('progress-chart').getContext('2d');
+        
+        if (chart) {
+          chart.destroy();
+        }
+
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: fechas,
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { usePointStyle: true, boxWidth: 8 }
+              },
+              title: {
+                display: true,
+                text: `Evolución de sesiones - ${estudiante}`,
+                font: { size: 14, weight: '600' }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                stepSize: 1,
+                title: { display: true, text: 'Cantidad de sesiones' }
+              },
+              x: {
+                title: { display: true, text: 'Fecha' }
+              }
+            }
+          }
+        });
+      }
+
+      if (studentSelect) {
+        studentSelect.addEventListener('change', function(e) {
+          actualizarGrafica(e.target.value);
+        });
+      }
+
+      function actualizarInterfaz() {
+        if (!grid || !emptyMsg || !countSpan) return;
+
+        grid.innerHTML = '';
+
+        if (sesiones.length === 0) {
+          emptyMsg.style.display = 'flex';
+          emptyMsg.style.flexDirection = 'column';
+          emptyMsg.style.alignItems = 'center';
+          countSpan.innerText = '0';
+          actualizarSelectorEstudiantes();
+          return;
+        }
+
+        emptyMsg.style.display = 'none';
+        countSpan.innerText = sesiones.length.toString();
+
+        const sorted = [...sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+        for (const sesion of sorted) {
+          const card = document.createElement('div');
+          card.className = 'entry-card';
+          card.dataset.id = sesion.id;
+
+          let colorEstado = '#2563eb';
+          if (sesion.estado === 'Completada') colorEstado = '#16a34a';
+          else if (sesion.estado === 'Pendiente') colorEstado = '#ca8a04';
+          else if (sesion.estado === 'Reprogramada') colorEstado = '#9333ea';
+
+          card.innerHTML = `
+            <div class="entry-info">
+              <div class="entry-meta">
+                <span><i class="far fa-calendar-alt"></i> ${sesion.fecha}</span>
+                <span><i class="fas fa-user"></i> ${sesion.estudiante}</span>
+                <span><i class="fas fa-tag"></i> ${sesion.tema}</span>
+                <span style="color: ${colorEstado}; font-weight: 700;"><i class="fas fa-circle" style="font-size: 0.7rem;"></i> ${sesion.estado}</span>
+              </div>
+              <div class="entry-tema">${sesion.tema}</div>
+              <div class="entry-acuerdos"><i class="fas fa-pencil-alt" style="margin-right: 8px;"></i>${sesion.acuerdos}</div>
+            </div>
+            <div class="entry-actions">
+              <button class="btn-icon edit" data-id="${sesion.id}" title="Editar sesión"><i class="fas fa-edit"></i></button>
+              <button class="btn-icon delete" data-id="${sesion.id}" title="Eliminar entrada"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          `;
+
+          const deleteBtn = card.querySelector('.delete');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const id = this.dataset.id;
+              if (id && confirm('¿Eliminar esta sesión de la bitácora?')) {
+                sesiones = sesiones.filter(s => s.id !== id);
+                localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+                actualizarInterfaz();
+                actualizarSelectorEstudiantes();
+              }
+            });
+          }
+
+          const editBtn = card.querySelector('.edit');
+          if (editBtn) {
+            editBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const id = this.dataset.id;
+              const sesion = sesiones.find(s => s.id === id);
+              if (sesion) {
+                abrirModal(sesion);
+              }
+            });
+          }
+
+          grid.appendChild(card);
+        }
+        
+        actualizarSelectorEstudiantes();
+      }
+
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          const fecha = document.getElementById('fecha');
+          const estudiante = document.getElementById('estudiante');
+          const tema = document.getElementById('tema');
+          const acuerdos = document.getElementById('acuerdos');
+          const estado = document.getElementById('estado');
+
+          if (!fecha || !estudiante || !tema || !acuerdos || !estado) return;
+
+          const fechaVal = fecha.value;
+          const estudianteVal = estudiante.value.trim();
+          const temaVal = tema.value.trim();
+          const acuerdosVal = acuerdos.value.trim();
+          const estadoVal = estado.value;
+
+          if (!fechaVal || !estudianteVal || !temaVal || !acuerdosVal) {
+            alert('Por favor completa todos los campos.');
+            return;
+          }
+
+          const nuevaSesion = {
+            id: generarId(),
+            fecha: fechaVal,
+            estudiante: estudianteVal,
+            tema: temaVal,
+            acuerdos: acuerdosVal,
+            estado: estadoVal,
+          };
+
+          sesiones.push(nuevaSesion);
+          localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+          
+          form.reset();
+          if (fechaInput) fechaInput.value = '2026-03-04';
+          
+          actualizarInterfaz();
+        });
+      }
+
+      cargarSesiones();
+      actualizarInterfaz();
+    })();
+  </script>
+</body>
 </html>
