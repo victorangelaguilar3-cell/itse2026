@@ -5,11 +5,11 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='24' font-size='24' fill='%232563eb'%3E📘%3C/text%3E%3C/svg%3E" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bitácora de tutorías · ITSE 2026</title>
-  <meta name="description" content="Registro de sesiones de tutoría académica con gráficas y exportación a PDF." />
-  <meta name="keywords" content="tutorías, bitácora, sesiones, seguimiento, gráficas, PDF, ITSE" />
+  <meta name="description" content="Registro de sesiones de tutoría académica con formato oficial." />
+  <meta name="keywords" content="tutorías, bitácora, sesiones, seguimiento, PDF oficial, ITSE" />
   <meta name="author" content="ITSE 2026" />
-  <meta property="og:title" content="Bitácora de tutorías con PDF — ITSE 2026" />
-  <meta property="og:description" content="Registra sesiones, visualiza progreso y exporta tu bitácora a PDF." />
+  <meta property="og:title" content="Bitácora de tutorías con formato oficial — ITSE 2026" />
+  <meta property="og:description" content="Registra sesiones y exporta bitácora con formato institucional." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -469,22 +469,12 @@
       box-shadow: 0 2px 0 #991b1b;
     }
 
-    .pdf-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      z-index: 2000;
-      overflow-y: auto;
-      padding: 2rem;
-      display: none;
-    }
-
-    .pdf-content {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* Campos adicionales para el formato oficial */
+    .tutor-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
     }
   </style>
 </head>
@@ -519,17 +509,32 @@
 
             <div class="input-group">
               <label><i class="fas fa-user-graduate"></i> Estudiante</label>
-              <input type="text" id="estudiante" placeholder="Ej. Ana López" required />
+              <input type="text" id="estudiante" placeholder="Nombre completo" required />
             </div>
 
             <div class="input-group">
-              <label><i class="fas fa-tag"></i> Tema / Materia</label>
-              <input type="text" id="tema" placeholder="Ej. Cálculo integral, redacción..." required />
+              <label><i class="fas fa-id-card"></i> Matrícula</label>
+              <input type="text" id="matricula" placeholder="Número de matrícula" required />
             </div>
 
             <div class="input-group">
-              <label><i class="fas fa-sticky-note"></i> Acuerdos / seguimiento</label>
-              <textarea id="acuerdos" placeholder="Detalla los compromisos, ejercicios, próximos pasos..." required></textarea>
+              <label><i class="fas fa-graduation-cap"></i> Programa Educativo</label>
+              <input type="text" id="programa" placeholder="Ej. Ingeniería en Sistemas" required />
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-tag"></i> Asunto</label>
+              <input type="text" id="asunto" placeholder="Tema tratado en la sesión" required />
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-sticky-note"></i> Acuerdos y medidas preventivas</label>
+              <textarea id="acuerdos" placeholder="Detalla los compromisos..." required></textarea>
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-clipboard-check"></i> Seguimiento de acuerdos</label>
+              <textarea id="seguimiento" placeholder="Seguimiento de sesiones anteriores..." required></textarea>
             </div>
 
             <div class="input-group">
@@ -540,6 +545,11 @@
                 <option value="Completada">✅ Completada</option>
                 <option value="Reprogramada">🔄 Reprogramada</option>
               </select>
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-comment"></i> Observaciones</label>
+              <textarea id="observaciones" placeholder="Notas adicionales..."></textarea>
             </div>
 
             <button type="submit" class="btn-primary">
@@ -575,16 +585,16 @@
         </p>
       </div>
 
-      <!-- Botón para exportar PDF -->
+      <!-- Botón para exportar PDF con formato oficial -->
       <div class="pdf-section">
         <button id="export-pdf" class="btn-pdf">
-          <i class="fas fa-file-pdf"></i> Exportar bitácora a PDF
+          <i class="fas fa-file-pdf"></i> Exportar bitácora oficial a PDF
         </button>
       </div>
 
       <div class="footer-note">
         <i class="fas fa-robot"></i> Plataforma de Gestión Estudiantil — 18 herramientas · ITSE 2026 
-        <span style="margin:0 0.7rem;">|</span> <i class="fas fa-chalkboard-teacher"></i> Bitácora de tutorías v3.0 con PDF
+        <span style="margin:0 0.7rem;">|</span> <i class="fas fa-chalkboard-teacher"></i> Bitácora de tutorías v3.0 con formato oficial
       </div>
     </div>
   </div>
@@ -604,12 +614,24 @@
           <input type="text" id="edit-estudiante" required>
         </div>
         <div class="input-group">
-          <label>Tema</label>
-          <input type="text" id="edit-tema" required>
+          <label>Matrícula</label>
+          <input type="text" id="edit-matricula" required>
+        </div>
+        <div class="input-group">
+          <label>Programa Educativo</label>
+          <input type="text" id="edit-programa" required>
+        </div>
+        <div class="input-group">
+          <label>Asunto</label>
+          <input type="text" id="edit-asunto" required>
         </div>
         <div class="input-group">
           <label>Acuerdos</label>
           <textarea id="edit-acuerdos" required></textarea>
+        </div>
+        <div class="input-group">
+          <label>Seguimiento</label>
+          <textarea id="edit-seguimiento" required></textarea>
         </div>
         <div class="input-group">
           <label>Estado</label>
@@ -619,6 +641,10 @@
             <option value="Completada">✅ Completada</option>
             <option value="Reprogramada">🔄 Reprogramada</option>
           </select>
+        </div>
+        <div class="input-group">
+          <label>Observaciones</label>
+          <textarea id="edit-observaciones"></textarea>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="cancel-edit">Cancelar</button>
@@ -638,7 +664,7 @@
       }
 
       function cargarSesiones() {
-        const almacenadas = localStorage.getItem('bitacoraITSE');
+        const almacenadas = localStorage.getItem('bitacoraITSE_oficial');
         if (almacenadas) {
           try {
             sesiones = JSON.parse(almacenadas);
@@ -651,44 +677,40 @@
               id: generarId(),
               fecha: '2026-03-02',
               estudiante: 'Martín Reyes',
-              tema: 'Ecuaciones diferenciales',
+              matricula: 'ITSE2024001',
+              programa: 'Ingeniería en Sistemas',
+              asunto: 'Ecuaciones diferenciales',
               acuerdos: 'Resolver 5 ejercicios del capítulo 3. Revisar el martes.',
+              seguimiento: 'El estudiante ha avanzado en los ejercicios básicos.',
               estado: 'En proceso',
+              observaciones: 'Se muestra motivado pero necesita práctica adicional.'
             },
             {
               id: generarId(),
               fecha: '2026-03-01',
               estudiante: 'Carla Jiménez',
-              tema: 'Estructura de datos - listas enlazadas',
+              matricula: 'ITSE2024023',
+              programa: 'Ingeniería en Sistemas',
+              asunto: 'Estructura de datos - listas enlazadas',
               acuerdos: 'Implementar lista doblemente enlazada en Python. Próxima tutoría presentar avance.',
+              seguimiento: 'Ya implementó listas simples, ahora toca dobles.',
               estado: 'Pendiente',
+              observaciones: 'Tiene dudas sobre punteros.'
             },
             {
               id: generarId(),
               fecha: '2026-02-27',
               estudiante: 'Sofía Herrera',
-              tema: 'Técnicas de redacción académica',
+              matricula: 'ITSE2024056',
+              programa: 'Licenciatura en Administración',
+              asunto: 'Técnicas de redacción académica',
               acuerdos: 'Entregar resumen del artículo. Corrección de citas APA.',
+              seguimiento: 'Ya corrigió el formato de citas.',
               estado: 'Completada',
-            },
-            {
-              id: generarId(),
-              fecha: '2026-03-03',
-              estudiante: 'Martín Reyes',
-              tema: 'Ecuaciones diferenciales (segunda sesión)',
-              acuerdos: 'Revisión de ejercicios, avance significativo.',
-              estado: 'Completada',
-            },
-            {
-              id: generarId(),
-              fecha: '2026-03-04',
-              estudiante: 'Martín Reyes',
-              tema: 'Preparación para examen',
-              acuerdos: 'Repaso general, dudas resueltas.',
-              estado: 'En proceso',
+              observaciones: 'Mejoró significativamente su redacción.'
             }
           ];
-          localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+          localStorage.setItem('bitacoraITSE_oficial', JSON.stringify(sesiones));
         }
       }
 
@@ -707,18 +729,26 @@
       const editId = document.getElementById('edit-id');
       const editFecha = document.getElementById('edit-fecha');
       const editEstudiante = document.getElementById('edit-estudiante');
-      const editTema = document.getElementById('edit-tema');
+      const editMatricula = document.getElementById('edit-matricula');
+      const editPrograma = document.getElementById('edit-programa');
+      const editAsunto = document.getElementById('edit-asunto');
       const editAcuerdos = document.getElementById('edit-acuerdos');
+      const editSeguimiento = document.getElementById('edit-seguimiento');
       const editEstado = document.getElementById('edit-estado');
+      const editObservaciones = document.getElementById('edit-observaciones');
       const cancelEdit = document.getElementById('cancel-edit');
 
       function abrirModal(sesion) {
         editId.value = sesion.id;
         editFecha.value = sesion.fecha;
         editEstudiante.value = sesion.estudiante;
-        editTema.value = sesion.tema;
-        editAcuerdos.value = sesion.acuerdos;
+        editMatricula.value = sesion.matricula || '';
+        editPrograma.value = sesion.programa || '';
+        editAsunto.value = sesion.asunto || sesion.tema || '';
+        editAcuerdos.value = sesion.acuerdos || '';
+        editSeguimiento.value = sesion.seguimiento || '';
         editEstado.value = sesion.estado;
+        editObservaciones.value = sesion.observaciones || '';
         modal.style.display = 'flex';
       }
 
@@ -742,12 +772,16 @@
               id: id,
               fecha: editFecha.value,
               estudiante: editEstudiante.value.trim(),
-              tema: editTema.value.trim(),
+              matricula: editMatricula.value.trim(),
+              programa: editPrograma.value.trim(),
+              asunto: editAsunto.value.trim(),
               acuerdos: editAcuerdos.value.trim(),
-              estado: editEstado.value
+              seguimiento: editSeguimiento.value.trim(),
+              estado: editEstado.value,
+              observaciones: editObservaciones.value.trim()
             };
             
-            localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+            localStorage.setItem('bitacoraITSE_oficial', JSON.stringify(sesiones));
             cerrarModal();
             actualizarInterfaz();
             actualizarSelectorEstudiantes();
@@ -903,137 +937,138 @@
         });
       }
 
-      // Función para exportar a PDF
+      // Función para exportar a PDF con formato oficial
       async function exportarPDF() {
         try {
           const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape para mejor ajuste de la tabla
           let yOffset = 20;
           const pageHeight = pdf.internal.pageSize.height;
-          const margin = 20;
-          const lineHeight = 7;
+          const pageWidth = pdf.internal.pageSize.width;
+          const margin = 15;
 
-          // Título
+          // Título principal
           pdf.setFontSize(20);
           pdf.setTextColor(37, 99, 235);
-          pdf.text('Bitácora de Tutorías - ITSE 2026', margin, yOffset);
-          yOffset += 15;
-
-          // Fecha de generación
-          pdf.setFontSize(10);
-          pdf.setTextColor(100, 100, 100);
-          const fechaActual = new Date().toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
-          pdf.text(`Generado el: ${fechaActual}`, margin, yOffset);
-          yOffset += 15;
-
-          // Resumen
-          const totalSesiones = sesiones.length;
-          const estudiantesUnicos = [...new Set(sesiones.map(s => s.estudiante))].length;
+          pdf.text('Registro', pageWidth / 2, yOffset, { align: 'center' });
+          yOffset += 8;
           
-          pdf.setFontSize(12);
-          pdf.setTextColor(0, 0, 0);
-          pdf.text(`Total de sesiones: ${totalSesiones}`, margin, yOffset);
-          yOffset += 7;
-          pdf.text(`Estudiantes: ${estudiantesUnicos}`, margin, yOffset);
+          pdf.setFontSize(16);
+          pdf.text('Bitácora de Tutorías Individual', pageWidth / 2, yOffset, { align: 'center' });
           yOffset += 15;
 
-          // Tabla de sesiones
-          if (sesiones.length > 0) {
-            pdf.setFontSize(14);
-            pdf.setTextColor(37, 99, 235);
-            pdf.text('Detalle de sesiones:', margin, yOffset);
-            yOffset += 10;
+          // Línea separadora
+          pdf.setDrawColor(200, 200, 200);
+          pdf.line(margin, yOffset - 5, pageWidth - margin, yOffset - 5);
+          
+          // Campos de información general
+          pdf.setFontSize(11);
+          pdf.setTextColor(0, 0, 0);
+          
+          // Nombre del tutor (fijo por ahora)
+          pdf.text(`Nombre del tutor: ${'_________________________'}`, margin, yOffset);
+          yOffset += 8;
+          
+          // Nombre y firma del alumno (se tomará del primer estudiante o se dejará espacio)
+          const primerEstudiante = sesiones.length > 0 ? sesiones[0].estudiante : '_________________________';
+          pdf.text(`Nombre y firma del alumno: ${primerEstudiante}`, margin, yOffset);
+          yOffset += 8;
+          
+          // Matrícula
+          const primeraMatricula = sesiones.length > 0 ? (sesiones[0].matricula || '_________________________') : '_________________________';
+          pdf.text(`Matrícula: ${primeraMatricula}`, margin, yOffset);
+          yOffset += 8;
+          
+          // Programa Educativo
+          const primerPrograma = sesiones.length > 0 ? (sesiones[0].programa || '_________________________') : '_________________________';
+          pdf.text(`Programa Educativo al que está adscrito: ${primerPrograma}`, margin, yOffset);
+          yOffset += 15;
 
-            // Encabezados de tabla
-            pdf.setFontSize(10);
-            pdf.setTextColor(0, 0, 0);
-            pdf.setFont(undefined, 'bold');
-            pdf.text('Fecha', margin, yOffset);
-            pdf.text('Estudiante', margin + 30, yOffset);
-            pdf.text('Tema', margin + 70, yOffset);
-            pdf.text('Estado', margin + 130, yOffset);
-            pdf.setFont(undefined, 'normal');
-            yOffset += 5;
+          // Título de la tabla
+          pdf.setFontSize(14);
+          pdf.setTextColor(37, 99, 235);
+          pdf.text('Resumen de entrevistas:', margin, yOffset);
+          yOffset += 10;
 
-            // Línea separadora
-            pdf.line(margin, yOffset - 2, pdf.internal.pageSize.width - margin, yOffset - 2);
-            
-            // Ordenar por fecha descendente
-            const sorted = [...sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+          // Definir columnas
+          const colPositions = [margin, margin + 25, margin + 60, margin + 100, margin + 155, margin + 190, margin + 230];
+          const colWidths = [22, 32, 37, 52, 32, 37, 30]; // Ajustados para landscape
+          
+          // Encabezados de tabla
+          pdf.setFontSize(8);
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFont(undefined, 'bold');
+          
+          pdf.text('Fecha', colPositions[0], yOffset);
+          pdf.text('Asunto', colPositions[1], yOffset);
+          pdf.text('Acuerdos y medidas preventivas', colPositions[2], yOffset);
+          pdf.text('Seguimiento de acuerdos', colPositions[3], yOffset);
+          pdf.text('Firma del Tutor', colPositions[4], yOffset);
+          pdf.text('Observaciones', colPositions[5], yOffset);
+          
+          pdf.setFont(undefined, 'normal');
+          yOffset += 5;
+          
+          // Línea separadora
+          pdf.line(margin, yOffset - 2, pageWidth - margin, yOffset - 2);
 
-            for (const sesion of sorted) {
-              // Verificar si necesitamos nueva página
-              if (yOffset > pageHeight - 40) {
-                pdf.addPage();
-                yOffset = 20;
-              }
+          // Ordenar por fecha descendente
+          const sorted = [...sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
 
-              pdf.setFontSize(9);
-              pdf.setTextColor(60, 60, 60);
+          for (const sesion of sorted) {
+            // Verificar si necesitamos nueva página
+            if (yOffset > pageHeight - 30) {
+              pdf.addPage();
+              yOffset = 20;
               
-              // Fecha
-              pdf.text(sesion.fecha, margin, yOffset);
-              
-              // Estudiante (truncar si es muy largo)
-              let estudiante = sesion.estudiante;
-              if (estudiante.length > 18) estudiante = estudiante.substring(0, 15) + '...';
-              pdf.text(estudiante, margin + 30, yOffset);
-              
-              // Tema (truncar)
-              let tema = sesion.tema;
-              if (tema.length > 25) tema = tema.substring(0, 22) + '...';
-              pdf.text(tema, margin + 70, yOffset);
-              
-              // Estado con color
-              const estadoColor = {
-                'Pendiente': [202, 138, 4],
-                'En proceso': [37, 99, 235],
-                'Completada': [22, 163, 74],
-                'Reprogramada': [147, 51, 234]
-              }[sesion.estado] || [0, 0, 0];
-              
-              pdf.setTextColor(estadoColor[0], estadoColor[1], estadoColor[2]);
-              pdf.text(sesion.estado, margin + 130, yOffset);
-              pdf.setTextColor(60, 60, 60);
-              
-              yOffset += lineHeight;
-            }
-
-            yOffset += 10;
-
-            // Agregar acuerdos importantes
-            pdf.setFontSize(12);
-            pdf.setTextColor(37, 99, 235);
-            pdf.text('Acuerdos y seguimiento:', margin, yOffset);
-            yOffset += 8;
-
-            pdf.setFontSize(9);
-            pdf.setTextColor(80, 80, 80);
-            
-            for (const sesion of sorted.slice(0, 10)) { // Mostrar últimos 10 acuerdos
-              if (yOffset > pageHeight - 30) {
-                pdf.addPage();
-                yOffset = 20;
-              }
-              
+              // Repetir encabezados en nueva página
+              pdf.setFontSize(8);
               pdf.setFont(undefined, 'bold');
-              pdf.text(`${sesion.fecha} - ${sesion.estudiante}:`, margin, yOffset);
+              pdf.text('Fecha', colPositions[0], yOffset);
+              pdf.text('Asunto', colPositions[1], yOffset);
+              pdf.text('Acuerdos y medidas preventivas', colPositions[2], yOffset);
+              pdf.text('Seguimiento de acuerdos', colPositions[3], yOffset);
+              pdf.text('Firma del Tutor', colPositions[4], yOffset);
+              pdf.text('Observaciones', colPositions[5], yOffset);
               pdf.setFont(undefined, 'normal');
-              yOffset += 4;
-              
-              // Dividir acuerdos largos en múltiples líneas
-              const acuerdosLines = pdf.splitTextToSize(sesion.acuerdos, pdf.internal.pageSize.width - margin * 2);
-              pdf.text(acuerdosLines, margin + 5, yOffset);
-              yOffset += (acuerdosLines.length * 4) + 5;
+              yOffset += 5;
+              pdf.line(margin, yOffset - 2, pageWidth - margin, yOffset - 2);
             }
+
+            pdf.setFontSize(7);
+            pdf.setTextColor(60, 60, 60);
+            
+            // Fecha
+            pdf.text(sesion.fecha, colPositions[0], yOffset);
+            
+            // Asunto
+            let asunto = sesion.asunto || sesion.tema || '';
+            if (asunto.length > 20) asunto = asunto.substring(0, 18) + '...';
+            pdf.text(asunto, colPositions[1], yOffset);
+            
+            // Acuerdos
+            let acuerdos = sesion.acuerdos || '';
+            if (acuerdos.length > 30) acuerdos = acuerdos.substring(0, 28) + '...';
+            pdf.text(acuerdos, colPositions[2], yOffset);
+            
+            // Seguimiento
+            let seguimiento = sesion.seguimiento || '';
+            if (seguimiento.length > 35) seguimiento = seguimiento.substring(0, 33) + '...';
+            pdf.text(seguimiento, colPositions[3], yOffset);
+            
+            // Firma (placeholder)
+            pdf.text('_________________', colPositions[4], yOffset);
+            
+            // Observaciones
+            let observaciones = sesion.observaciones || '';
+            if (observaciones.length > 25) observaciones = observaciones.substring(0, 23) + '...';
+            pdf.text(observaciones, colPositions[5], yOffset);
+            
+            yOffset += 6;
           }
 
           // Guardar PDF
-          pdf.save(`bitacora_tutorias_${new Date().toISOString().split('T')[0]}.pdf`);
+          pdf.save(`bitacora_tutorias_oficial_${new Date().toISOString().split('T')[0]}.pdf`);
           
         } catch (error) {
           console.error('Error al generar PDF:', error);
@@ -1079,11 +1114,12 @@
               <div class="entry-meta">
                 <span><i class="far fa-calendar-alt"></i> ${sesion.fecha}</span>
                 <span><i class="fas fa-user"></i> ${sesion.estudiante}</span>
-                <span><i class="fas fa-tag"></i> ${sesion.tema}</span>
+                <span><i class="fas fa-id-card"></i> ${sesion.matricula || 'Sin matrícula'}</span>
                 <span style="color: ${colorEstado}; font-weight: 700;"><i class="fas fa-circle" style="font-size: 0.7rem;"></i> ${sesion.estado}</span>
               </div>
-              <div class="entry-tema">${sesion.tema}</div>
+              <div class="entry-tema">${sesion.asunto || sesion.tema}</div>
               <div class="entry-acuerdos"><i class="fas fa-pencil-alt" style="margin-right: 8px;"></i>${sesion.acuerdos}</div>
+              ${sesion.seguimiento ? `<div class="entry-acuerdos" style="margin-top: 5px;"><i class="fas fa-clipboard-check"></i> Seguimiento: ${sesion.seguimiento}</div>` : ''}
             </div>
             <div class="entry-actions">
               <button class="btn-icon edit" data-id="${sesion.id}" title="Editar sesión"><i class="fas fa-edit"></i></button>
@@ -1098,7 +1134,7 @@
               const id = this.dataset.id;
               if (id && confirm('¿Eliminar esta sesión de la bitácora?')) {
                 sesiones = sesiones.filter(s => s.id !== id);
-                localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+                localStorage.setItem('bitacoraITSE_oficial', JSON.stringify(sesiones));
                 actualizarInterfaz();
                 actualizarSelectorEstudiantes();
               }
@@ -1129,20 +1165,28 @@
 
           const fecha = document.getElementById('fecha');
           const estudiante = document.getElementById('estudiante');
-          const tema = document.getElementById('tema');
+          const matricula = document.getElementById('matricula');
+          const programa = document.getElementById('programa');
+          const asunto = document.getElementById('asunto');
           const acuerdos = document.getElementById('acuerdos');
+          const seguimiento = document.getElementById('seguimiento');
           const estado = document.getElementById('estado');
+          const observaciones = document.getElementById('observaciones');
 
-          if (!fecha || !estudiante || !tema || !acuerdos || !estado) return;
+          if (!fecha || !estudiante || !matricula || !programa || !asunto || !acuerdos || !seguimiento || !estado) return;
 
           const fechaVal = fecha.value;
           const estudianteVal = estudiante.value.trim();
-          const temaVal = tema.value.trim();
+          const matriculaVal = matricula.value.trim();
+          const programaVal = programa.value.trim();
+          const asuntoVal = asunto.value.trim();
           const acuerdosVal = acuerdos.value.trim();
+          const seguimientoVal = seguimiento.value.trim();
           const estadoVal = estado.value;
+          const observacionesVal = observaciones ? observaciones.value.trim() : '';
 
-          if (!fechaVal || !estudianteVal || !temaVal || !acuerdosVal) {
-            alert('Por favor completa todos los campos.');
+          if (!fechaVal || !estudianteVal || !matriculaVal || !programaVal || !asuntoVal || !acuerdosVal || !seguimientoVal) {
+            alert('Por favor completa todos los campos obligatorios.');
             return;
           }
 
@@ -1150,13 +1194,17 @@
             id: generarId(),
             fecha: fechaVal,
             estudiante: estudianteVal,
-            tema: temaVal,
+            matricula: matriculaVal,
+            programa: programaVal,
+            asunto: asuntoVal,
             acuerdos: acuerdosVal,
+            seguimiento: seguimientoVal,
             estado: estadoVal,
+            observaciones: observacionesVal
           };
 
           sesiones.push(nuevaSesion);
-          localStorage.setItem('bitacoraITSE', JSON.stringify(sesiones));
+          localStorage.setItem('bitacoraITSE_oficial', JSON.stringify(sesiones));
           
           form.reset();
           if (fechaInput) fechaInput.value = '2026-03-04';
