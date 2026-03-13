@@ -5,16 +5,18 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='24' font-size='24' fill='%232563eb'%3E📘%3C/text%3E%3C/svg%3E" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bitácora de tutorías · ITSE 2026</title>
-  <meta name="description" content="Registro de sesiones de tutoría académica con gráficas de seguimiento por estudiante." />
-  <meta name="keywords" content="tutorías, bitácora, sesiones, seguimiento, gráficas, ITSE" />
+  <meta name="description" content="Registro de sesiones de tutoría académica con gráficas y exportación a PDF." />
+  <meta name="keywords" content="tutorías, bitácora, sesiones, seguimiento, gráficas, PDF, ITSE" />
   <meta name="author" content="ITSE 2026" />
-  <meta property="og:title" content="Bitácora de tutorías con gráficas — ITSE 2026" />
-  <meta property="og:description" content="Registra sesiones y visualiza el progreso de cada estudiante con gráficas dinámicas." />
+  <meta property="og:title" content="Bitácora de tutorías con PDF — ITSE 2026" />
+  <meta property="og:description" content="Registra sesiones, visualiza progreso y exporta tu bitácora a PDF." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -433,6 +435,57 @@
       background: white;
       cursor: pointer;
     }
+
+    .pdf-section {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-pdf {
+      background: #dc2626;
+      color: white;
+      font-weight: 600;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 1rem;
+      transition: all 0.15s;
+      box-shadow: 0 4px 0 #991b1b;
+    }
+
+    .btn-pdf:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #991b1b;
+    }
+
+    .btn-pdf:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #991b1b;
+    }
+
+    .pdf-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 2rem;
+      display: none;
+    }
+
+    .pdf-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -509,7 +562,6 @@
         </div>
       </div>
 
-      <!-- Nueva sección de gráfica -->
       <div class="chart-container">
         <div class="chart-header">
           <h3><i class="fas fa-chart-line" style="margin-right: 10px; color:#2563eb;"></i>Seguimiento por estudiante</h3>
@@ -523,9 +575,16 @@
         </p>
       </div>
 
+      <!-- Botón para exportar PDF -->
+      <div class="pdf-section">
+        <button id="export-pdf" class="btn-pdf">
+          <i class="fas fa-file-pdf"></i> Exportar bitácora a PDF
+        </button>
+      </div>
+
       <div class="footer-note">
         <i class="fas fa-robot"></i> Plataforma de Gestión Estudiantil — 18 herramientas · ITSE 2026 
-        <span style="margin:0 0.7rem;">|</span> <i class="fas fa-chalkboard-teacher"></i> Bitácora de tutorías v2.0 con gráficas
+        <span style="margin:0 0.7rem;">|</span> <i class="fas fa-chalkboard-teacher"></i> Bitácora de tutorías v3.0 con PDF
       </div>
     </div>
   </div>
@@ -640,6 +699,7 @@
       const fechaInput = document.getElementById('fecha');
       const studentSelect = document.getElementById('student-chart-select');
       const noDataMessage = document.getElementById('no-data-message');
+      const exportBtn = document.getElementById('export-pdf');
       
       // Elementos del modal
       const modal = document.getElementById('edit-modal');
@@ -841,6 +901,148 @@
         studentSelect.addEventListener('change', function(e) {
           actualizarGrafica(e.target.value);
         });
+      }
+
+      // Función para exportar a PDF
+      async function exportarPDF() {
+        try {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          let yOffset = 20;
+          const pageHeight = pdf.internal.pageSize.height;
+          const margin = 20;
+          const lineHeight = 7;
+
+          // Título
+          pdf.setFontSize(20);
+          pdf.setTextColor(37, 99, 235);
+          pdf.text('Bitácora de Tutorías - ITSE 2026', margin, yOffset);
+          yOffset += 15;
+
+          // Fecha de generación
+          pdf.setFontSize(10);
+          pdf.setTextColor(100, 100, 100);
+          const fechaActual = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+          pdf.text(`Generado el: ${fechaActual}`, margin, yOffset);
+          yOffset += 15;
+
+          // Resumen
+          const totalSesiones = sesiones.length;
+          const estudiantesUnicos = [...new Set(sesiones.map(s => s.estudiante))].length;
+          
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text(`Total de sesiones: ${totalSesiones}`, margin, yOffset);
+          yOffset += 7;
+          pdf.text(`Estudiantes: ${estudiantesUnicos}`, margin, yOffset);
+          yOffset += 15;
+
+          // Tabla de sesiones
+          if (sesiones.length > 0) {
+            pdf.setFontSize(14);
+            pdf.setTextColor(37, 99, 235);
+            pdf.text('Detalle de sesiones:', margin, yOffset);
+            yOffset += 10;
+
+            // Encabezados de tabla
+            pdf.setFontSize(10);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Fecha', margin, yOffset);
+            pdf.text('Estudiante', margin + 30, yOffset);
+            pdf.text('Tema', margin + 70, yOffset);
+            pdf.text('Estado', margin + 130, yOffset);
+            pdf.setFont(undefined, 'normal');
+            yOffset += 5;
+
+            // Línea separadora
+            pdf.line(margin, yOffset - 2, pdf.internal.pageSize.width - margin, yOffset - 2);
+            
+            // Ordenar por fecha descendente
+            const sorted = [...sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+            for (const sesion of sorted) {
+              // Verificar si necesitamos nueva página
+              if (yOffset > pageHeight - 40) {
+                pdf.addPage();
+                yOffset = 20;
+              }
+
+              pdf.setFontSize(9);
+              pdf.setTextColor(60, 60, 60);
+              
+              // Fecha
+              pdf.text(sesion.fecha, margin, yOffset);
+              
+              // Estudiante (truncar si es muy largo)
+              let estudiante = sesion.estudiante;
+              if (estudiante.length > 18) estudiante = estudiante.substring(0, 15) + '...';
+              pdf.text(estudiante, margin + 30, yOffset);
+              
+              // Tema (truncar)
+              let tema = sesion.tema;
+              if (tema.length > 25) tema = tema.substring(0, 22) + '...';
+              pdf.text(tema, margin + 70, yOffset);
+              
+              // Estado con color
+              const estadoColor = {
+                'Pendiente': [202, 138, 4],
+                'En proceso': [37, 99, 235],
+                'Completada': [22, 163, 74],
+                'Reprogramada': [147, 51, 234]
+              }[sesion.estado] || [0, 0, 0];
+              
+              pdf.setTextColor(estadoColor[0], estadoColor[1], estadoColor[2]);
+              pdf.text(sesion.estado, margin + 130, yOffset);
+              pdf.setTextColor(60, 60, 60);
+              
+              yOffset += lineHeight;
+            }
+
+            yOffset += 10;
+
+            // Agregar acuerdos importantes
+            pdf.setFontSize(12);
+            pdf.setTextColor(37, 99, 235);
+            pdf.text('Acuerdos y seguimiento:', margin, yOffset);
+            yOffset += 8;
+
+            pdf.setFontSize(9);
+            pdf.setTextColor(80, 80, 80);
+            
+            for (const sesion of sorted.slice(0, 10)) { // Mostrar últimos 10 acuerdos
+              if (yOffset > pageHeight - 30) {
+                pdf.addPage();
+                yOffset = 20;
+              }
+              
+              pdf.setFont(undefined, 'bold');
+              pdf.text(`${sesion.fecha} - ${sesion.estudiante}:`, margin, yOffset);
+              pdf.setFont(undefined, 'normal');
+              yOffset += 4;
+              
+              // Dividir acuerdos largos en múltiples líneas
+              const acuerdosLines = pdf.splitTextToSize(sesion.acuerdos, pdf.internal.pageSize.width - margin * 2);
+              pdf.text(acuerdosLines, margin + 5, yOffset);
+              yOffset += (acuerdosLines.length * 4) + 5;
+            }
+          }
+
+          // Guardar PDF
+          pdf.save(`bitacora_tutorias_${new Date().toISOString().split('T')[0]}.pdf`);
+          
+        } catch (error) {
+          console.error('Error al generar PDF:', error);
+          alert('Error al generar el PDF. Por favor intenta de nuevo.');
+        }
+      }
+
+      if (exportBtn) {
+        exportBtn.addEventListener('click', exportarPDF);
       }
 
       function actualizarInterfaz() {
